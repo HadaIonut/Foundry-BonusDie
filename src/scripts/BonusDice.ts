@@ -4,11 +4,11 @@ Hooks.on("init", () => {
 })
 
 const increasingMethod = (player: string) => {
-    console.log ("plus");
+    console.log (`plus ${player}`);
 }
 
 const decreasingMethod = (player: string) => {
-    console.log ("minus");
+    console.log (`minus ${player}`);
 }
 
 const methodSelector = (type: string, player: string) => {
@@ -37,16 +37,11 @@ const button = (type: string, player: string) => {
 }
 
 const handle = (players, $playerHTML) => (index) => {
-    const buttonPlus = button("increase", players[index]);
-
-    let buttonMinus = button("decrease", players[index]);
+    const buttonPlus = button("increase", players.users[index].data._id);
+    const buttonMinus = button("decrease", players.users[index].data._id);
 
     $playerHTML[index].append(buttonPlus[0]);
     $playerHTML[index].append(buttonMinus[0]);
-
-    console.log($playerHTML);
-    console.log(players);
-    console.log(index);
 }
 
 //Magic one liner, I dont want to talk about this
