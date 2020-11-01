@@ -1,0 +1,15 @@
+{
+  "name": "BonusDie",
+  "title": "Bonus Dice",
+  "description": "",
+  "authors": ["HadaIoan"],
+  "version": "0.0.1",
+  "esmodules": ["BonusDice.js"],
+  "styles": [],
+  "minimumCoreVersion": "0.7.0",
+  "compatibleCoreVersion": "0.7.0",
+  "url": "",
+  "manifest": "",
+  "download": "",
+  "changelog": ""
+}
