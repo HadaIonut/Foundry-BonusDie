@@ -11,7 +11,7 @@ Hooks.on("init", async () => {
 Hooks.on("ready", () => {
     game.socket.on('module.BonusDie', (object) => {
         console.log('ceaoa');
-        updateCounter(object.str, object.counter);
+        updateCounter($(`#${$(object.str).attr('id')}`), object.counter);
     });
 })
 
@@ -45,10 +45,12 @@ const getBonusDiceValue = (players: string): number => {
     } else return 0;
 }
 
-const bonusDiceStructure = (players: string) => $(`<span style='flex: 0.1'>${getBonusDiceValue(players)}</i></span>`);
+const getSpanId = (index)=> `BonusDie-${index}`;
+
+const bonusDiceStructure = (players: string, index) => $(`<span id="${getSpanId(index)}" style='flex: 0.1'>${getBonusDiceValue(players)}</i></span>`);
 
 const getControls = (players, index) => {
-    const $bonusDice = bonusDiceStructure(players.users[index].data._id);
+    const $bonusDice = bonusDiceStructure(players.users[index].data._id, index);
 
     if (game.user.isGM) {
         const buttonWithPlayer = button(players.users[index].data._id, $bonusDice);
