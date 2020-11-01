@@ -5,15 +5,26 @@ Hooks.on("init", async () => {
 
     console.log("ceputa");
     CONFIG.debug.hooks = true;
+
 })
 
-const updateCounter = ($counter) => (newValue: number) => $counter.text(newValue);
+Hooks.on("ready", () => {
+    game.socket.on('module.BonusDie', (object) => {
+        console.log('ceaoa');
+        updateCounter(object.str, object.counter);
+    });
+})
+
+const updateCounter = ($counter, newValue: number) => $counter.text(newValue);
 
 const modifyBonusDiceAmount = (player: string, modifier: number, $counterStructure) => {
     const counter = getCounter();
     if (isNaN(counter[player])) counter[player] = 0;
     counter[player] = Math.max(counter[player] + modifier, 0);
-    setCounter(counter).then(updateCounter($counterStructure)(counter[player]));
+    setCounter(counter).then(() => {
+        updateCounter($counterStructure, counter[player]);
+        game.socket.emit('module.BonusDie', {str: $counterStructure[0].outerHTML, counter: counter[player]})
+    });
 }
 
 const methodSelector = (type: string, player: string, $counterStructure) => () => modifyBonusDiceAmount(player, type === "increase" ? 1 : -1, $counterStructure);
@@ -37,13 +48,16 @@ const getBonusDiceValue = (players: string): number => {
 const bonusDiceStructure = (players: string) => $(`<span style='flex: 0.1'>${getBonusDiceValue(players)}</i></span>`);
 
 const getControls = (players, index) => {
+    const $bonusDice = bonusDiceStructure(players.users[index].data._id);
+
     if (game.user.isGM) {
-        const $bonusDice = bonusDiceStructure(players.users[index].data._id);
         const buttonWithPlayer = button(players.users[index].data._id, $bonusDice);
         const buttonPlus = buttonWithPlayer("increase");
         const buttonMinus = buttonWithPlayer("decrease");
 
         return [$bonusDice, buttonPlus, buttonMinus];
+    } else {
+        return [$bonusDice];
     }
 }
 

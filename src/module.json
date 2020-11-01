@@ -5,6 +5,7 @@
   "authors": ["HadaIoan"],
   "version": "0.0.1",
   "esmodules": ["scripts/BonusDice.js"],
+  "socket":true,
   "styles": [],
   "minimumCoreVersion": "0.7.0",
   "compatibleCoreVersion": "0.7.0",
