@@ -11,7 +11,7 @@ Hooks.on("init", async () => {
 Hooks.on("ready", () => {
     game.socket.on('module.BonusDie', (object) => {
         console.log('ceaoa');
-        updateCounter($(`#${$(object.str).attr('id')}`), object.counter);
+        updateCounter($(`#${object.str}`), object.counter);
     });
 })
 
@@ -23,7 +23,7 @@ const modifyBonusDiceAmount = (player: string, modifier: number, $counterStructu
     counter[player] = Math.max(counter[player] + modifier, 0);
     setCounter(counter).then(() => {
         updateCounter($counterStructure, counter[player]);
-        game.socket.emit('module.BonusDie', {str: $counterStructure[0].outerHTML, counter: counter[player]})
+        game.socket.emit('module.BonusDie', {str: $counterStructure.attr('id'), counter: counter[player]})
     });
 }
 
