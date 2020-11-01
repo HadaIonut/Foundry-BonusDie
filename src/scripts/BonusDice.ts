@@ -31,7 +31,7 @@ const updateCounter = ($counter, newValue: number) => $counter.text(newValue);
  * @param modifier - how should the number of bonus die be modified (+/-)
  * @param $counterStructure - jQuery obj of the span
  */
-const modifyBonusDiceAmount = (player: string, modifier: number, $counterStructure) => {
+const modifyBonusDieAmount = (player: string, modifier: number, $counterStructure) => {
     const counter = getCounter();
     if (isNaN(counter[player])) counter[player] = 0;
     counter[player] = Math.max(counter[player] + modifier, 0);
@@ -48,7 +48,7 @@ const modifyBonusDiceAmount = (player: string, modifier: number, $counterStructu
  * @param player - owner of the structure
  * @param $counterStructure - jQuery obj of the span
  */
-const methodSelector = (type: string, player: string, $counterStructure) => () => modifyBonusDiceAmount(player, type === "increase" ? 1 : -1, $counterStructure);
+const methodSelector = (type: string, player: string, $counterStructure) => () => modifyBonusDieAmount(player, type === "increase" ? 1 : -1, $counterStructure);
 
 const iconSelector = (type: string): string => type === 'increase' ? 'fas fa-plus' : 'fas fa-minus';
 
@@ -70,7 +70,7 @@ const button = (player: string, $counterStructure) => (type: string) => {
  *
  * @param player
  */
-const getBonusDiceValue = (player: string): number => {
+const getBonusDieValue = (player: string): number => {
     const counter = getCounter();
     if (counter?.[player]) {
         return counter[player];
@@ -90,7 +90,7 @@ const getSpanId = (index)=> `BonusDie-${index}`;
  * @param player - the player owner of the structure
  * @param index - index of the span
  */
-const bonusDiceStructure = (player: string, index) => $(`<span id="${getSpanId(index)}" style='flex: 0.1'>${getBonusDiceValue(player)}</i></span>`);
+const bonusDieStructure = (player: string, index) => $(`<span id="${getSpanId(index)}" style='flex: 0.1'>${getBonusDieValue(player)}</i></span>`);
 
 /**
  * Creates the controls structure for the DM (display, plus button, minus button)
@@ -99,16 +99,16 @@ const bonusDiceStructure = (player: string, index) => $(`<span id="${getSpanId(i
  * @param index - index of the span
  */
 const getControls = (players, index) => {
-    const $bonusDice = bonusDiceStructure(players.users[index].data._id, index);
+    const $bonusDie = bonusDieStructure(players.users[index].data._id, index);
 
     if (game.user.isGM) {
-        const buttonWithPlayer = button(players.users[index].data._id, $bonusDice);
+        const buttonWithPlayer = button(players.users[index].data._id, $bonusDie);
         const buttonPlus = buttonWithPlayer("increase");
         const buttonMinus = buttonWithPlayer("decrease");
 
-        return [$bonusDice, buttonPlus, buttonMinus];
+        return [$bonusDie, buttonPlus, buttonMinus];
     } else {
-        return [$bonusDice];
+        return [$bonusDie];
     }
 }
 
