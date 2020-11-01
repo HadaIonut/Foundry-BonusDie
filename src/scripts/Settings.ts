@@ -3,26 +3,18 @@ const moduleName = "BonusDie"
 const counter = {
     key: "counter",
     data: {
-        type: String,
-        default: "{}",
+        type: Object,
+        default: {},
         scope: "world",
         config: false,
-        restricted: true,
+        restricted: false,
     },
 }
 
-const registerSettings = async () => await game.settings.register(moduleName, counter.key, counter.data);
+const registerCounter = async () => await game?.settings?.register(moduleName, counter.key, counter.data);
 
-const getCounter = () => {
-    const counterString = game.settings.get(moduleName, counter.key);
-    try {
-        return JSON.parse(counterString);
-    }
-    catch (e) {
-        console.error(e);
-    }
-}
+const getCounter = (): any => game?.settings?.get(moduleName, counter.key);
 
-const setCounter = async (counterData) => {
-    await game.settings.set(moduleName, counter.key, counterData)
-}
+const setCounter = async (counterData) => await game?.settings?.set(moduleName, counter.key, counterData);
+
+export {registerCounter, getCounter, setCounter};
