@@ -27,8 +27,8 @@ const updateCounter = ($counter, newValue: number) => $counter.text(newValue);
 /**
  * Method called by the buttons to update the numbers displayed
  *
- * @param player - owner of the bonus dice
- * @param modifier - how should the number of bonus dice be modified (+/-)
+ * @param player - owner of the bonus die
+ * @param modifier - how should the number of bonus die be modified (+/-)
  * @param $counterStructure - jQuery obj of the span
  */
 const modifyBonusDiceAmount = (player: string, modifier: number, $counterStructure) => {
@@ -66,7 +66,7 @@ const button = (player: string, $counterStructure) => (type: string) => {
 }
 
 /**
- * Returns the number of bonus dice held by a player
+ * Returns the number of bonus die held by a player
  *
  * @param player
  */
@@ -85,7 +85,7 @@ const getBonusDiceValue = (player: string): number => {
 const getSpanId = (index)=> `BonusDie-${index}`;
 
 /**
- * Creates the structure for the bonus dice display as a span with the number of bonus dice
+ * Creates the structure for the bonus die display as a span with the number of bonus die
  *
  * @param player - the player owner of the structure
  * @param index - index of the span
@@ -119,7 +119,8 @@ const getControls = (players, index) => {
  */
 const handle = (players) => (index, playerHTML) => $(playerHTML).append(...getControls(players, index));
 
-//Magic one liner, I dont want to talk about this
-//bmarian made me do it, make issues on token tooltip alt
-//https://github.com/bmarian/token-tooltip-alt/issues
+
+/* Magic one liner, I dont want to talk about this
+   bmarian made me do it, make issues on token tooltip alt
+   https://github.com/bmarian/token-tooltip-alt/issues */
 Hooks.on("renderPlayerList", (playerList, $playerList, players) => $playerList.find('ol').children().each(handle(players)));
