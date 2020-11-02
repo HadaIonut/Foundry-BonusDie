@@ -5,8 +5,7 @@ const socketsHandle = () => async (receivedObject) => {
         case 'updatePlayerDisplay':
             return updateCounter(Array.isArray(receivedObject.targetId) ? receivedObject.targetId : [receivedObject.targetId], receivedObject.counter);
         case 'requestCounterUpdate':
-            await modifyBonusDieAmountGM(receivedObject.requestSource, receivedObject.modifier);
-            break;
+            return modifyBonusDieAmountGM(receivedObject.requestSource, receivedObject.modifier);
     }
 }
 

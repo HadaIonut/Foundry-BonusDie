@@ -16,9 +16,20 @@ const getJQueryObjectFromId = (id: string) => $(`#BonusDie-${id}`);
  */
 const updateCounter = (counter, newValue) => counter.forEach((entity) => getJQueryObjectFromId(entity).text(newValue[entity]))
 
-const shouldIModify = (counter: any, players: string[], modifiers: number[]) =>
-    // @ts-ignore
-    players.reduce((previous, current, index) => !(counter[current] === 0 && modifiers[index] === -1));
+/**
+ * Returns true if a counter should be modified
+ *
+ * @param counter - list of all the bonus dice of all the players
+ * @param players - a list of players involved in the modification
+ * @param modifiers - the modifiers applied to the counter
+ */
+const shouldIModify = (counter: any, players: string[], modifiers: number[]): boolean => {
+    let returnValue = true;
+    players.forEach((current, index)=> {
+        if (counter[current] === 0 && modifiers[index] === -1) returnValue = false;
+    })
+    return returnValue;
+}
 
 /**
  * Method called by the buttons to update the numbers displayed
@@ -78,11 +89,11 @@ const methodSelector = (type: string, player: string) => async () => {
         case 'decrease':
             return modifyBonusDieAmountGM([player], [-1]);
         case 'use':
-            await createNewMessage('use', player);
+            if (shouldIModify(getCounter(), [player], [-1])) await createNewMessage('use', player);
             return await modifyBonusDieAmountPlayer([player], [-1]);
         case 'gift':
             // @ts-ignore
-            await createNewMessage('gift', player, game.user.data._id);
+            if (shouldIModify(getCounter(), [player, game.user.data._id], [1, -1])) await createNewMessage('gift', player, game.user.data._id);
             // @ts-ignore
             await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1]);
             break;
