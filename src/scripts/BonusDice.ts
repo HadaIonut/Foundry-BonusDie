@@ -14,10 +14,13 @@ const getJQueryObjectFromId = (id: string) => $(`#BonusDie-${id}`);
  * @param newValue - the new value of the span
  */
 const updateCounter = (counter, newValue) => {
-    counter.forEach((entity)=>{
+    counter.forEach((entity) => {
         getJQueryObjectFromId(entity).text(newValue[entity]);
     })
 }
+
+// @ts-ignore
+const shouldIModify = (counter: any, players: string[], modifiers: number[]) => players.reduce((previous, current, index) => !(counter[current] === 0 && modifiers[index] === -1));
 
 /**
  * Method called by the buttons to update the numbers displayed
@@ -25,11 +28,13 @@ const updateCounter = (counter, newValue) => {
  * @param players - owner of the bonus die
  * @param modifiers - how should the number of bonus die be modified (+/-)
  */
-const modifyBonusDieAmountGM = (players, modifiers) => {
+const modifyBonusDieAmountGM = (players: string[], modifiers: number[]) => {
     const counter = getCounter();
 
+    if (!shouldIModify(counter, players, modifiers)) return;
+
     // modifies each object of the counter based on the modifiers array
-    players.forEach((pl, index)=>{
+    players.forEach((pl, index) => {
         if (isNaN(counter[pl])) counter[pl] = 0;
         counter[pl] = Math.max(counter[pl] + modifiers[index], 0);
     })
