@@ -1,16 +1,16 @@
 {
   "name": "BonusDie",
   "title": "Bonus Die",
-  "description": "",
+  "description": "placeholder",
   "authors": ["HadaIoan"],
   "version": "0.0.1",
   "esmodules": ["scripts/Hooks.js"],
   "socket":true,
   "styles": [],
   "minimumCoreVersion": "0.7.0",
-  "compatibleCoreVersion": "0.7.0",
-  "url": "",
-  "manifest": "",
-  "download": "",
+  "compatibleCoreVersion": "0.7.5",
+  "url": "https://github.com/HadaIonut/Foundry-BonusDie",
+  "manifest": "https://github.com/HadaIonut/Foundry-BonusDie/releases/download/v0.0.1/module.json",
+  "download": "https://github.com/HadaIonut/Foundry-BonusDie/releases/download/v0.0.1/bonusDie.zip",
   "changelog": ""
 }

@@ -1,8 +1,8 @@
-import {registerCounter} from "./Settings";
+import {registerSettings} from "./Settings";
 import {handle} from "./BonusDice";
 import {socketsHandle} from "./socketsHandler";
 
-Hooks.on("init", async () => await registerCounter());
+Hooks.on("init", async () => await registerSettings());
 
 Hooks.on("ready", () => {
     //event trigger for updating the data un the user side

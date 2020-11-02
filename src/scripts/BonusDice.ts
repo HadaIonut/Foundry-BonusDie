@@ -1,4 +1,5 @@
 import {getCounter, setCounter} from "./Settings"
+import {createNewMessage} from "./MessageHandle";
 
 /**
  * Returns the id of the span that holds a player's bonus die number
@@ -15,9 +16,9 @@ const getJQueryObjectFromId = (id: string) => $(`#BonusDie-${id}`);
  */
 const updateCounter = (counter, newValue) => counter.forEach((entity) => getJQueryObjectFromId(entity).text(newValue[entity]))
 
-//Ignore the stupidly long one-liner
-// @ts-ignore
-const shouldIModify = (counter: any, players: string[], modifiers: number[]) => players.reduce((previous, current, index) => !(counter[current] === 0 && modifiers[index] === -1));
+const shouldIModify = (counter: any, players: string[], modifiers: number[]) =>
+    // @ts-ignore
+    players.reduce((previous, current, index) => !(counter[current] === 0 && modifiers[index] === -1));
 
 /**
  * Method called by the buttons to update the numbers displayed
@@ -26,6 +27,8 @@ const shouldIModify = (counter: any, players: string[], modifiers: number[]) => 
  * @param modifiers - how should the number of bonus die be modified (+/-)
  */
 const modifyBonusDieAmountGM = (players: string[], modifiers: number[]) => {
+    if (!game.user.isGM) return;
+
     const counter = getCounter();
 
     if (!shouldIModify(counter, players, modifiers)) return;
@@ -75,14 +78,15 @@ const methodSelector = (type: string, player: string) => async () => {
         case 'decrease':
             return modifyBonusDieAmountGM([player], [-1]);
         case 'use':
-            //TODO: insert some emitter here in case you decide to do the Hooks
+            await createNewMessage('use', player);
             return await modifyBonusDieAmountPlayer([player], [-1]);
         case 'gift':
+            // @ts-ignore
+            await createNewMessage('gift', player, game.user.data._id);
             // @ts-ignore
             await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1]);
             break;
     }
-
 }
 
 const iconSelector = (type: string): string => `fas ${type === 'increase' ? 'fa-plus' : type === 'decrease' ? 'fa-minus' : type === 'use' ? 'fa-dice-d20' : 'fa-gift'}`;
@@ -123,7 +127,7 @@ const getSpanId = (index) => `BonusDie-${index}`;
  *
  * @param player - the player owner of the structure
  */
-const bonusDieStructure = (player: string) => $(`<span id="${getSpanId(player)}" style='flex: 0.1'>${getBonusDieValue(player)}</i></span>`);
+const bonusDieStructure = (player: string) => $(`<span id="${getSpanId(player)}" style='flex: 0.2'>${getBonusDieValue(player)}</i></span>`);
 
 /**
  * Creates the controls structure for the DM (display, plus button, minus button)
