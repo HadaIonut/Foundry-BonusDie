@@ -1,12 +1,18 @@
 import {getCounter, setCounter} from "./Settings"
 
+const getJQueryObjectFromId = (id: string) => $(`#BonusDie-${id}`);
+
 /**
  * Updates the counter display
  *
- * @param $counter - jQuery element of the span to update
+ * @param counter - jQuery element of the span to update
  * @param newValue - the new value of the span
  */
-const updateCounter = ($counter, newValue: number) => $counter.text(newValue);
+const updateCounter = (counter, newValue) => {
+    counter.forEach((entity)=>{
+        getJQueryObjectFromId(entity).text(newValue[entity]);
+    })
+}
 
 /**
  * Method called by the buttons to update the numbers displayed
@@ -15,22 +21,30 @@ const updateCounter = ($counter, newValue: number) => $counter.text(newValue);
  * @param modifier - how should the number of bonus die be modified (+/-)
  * @param $counterStructure - jQuery obj of the span
  */
-const modifyBonusDieAmountGM = (player: string, modifier: number, $counterStructure?) => {
+const modifyBonusDieAmountGM = (player, modifier, $counterStructure?) => {
     const counter = getCounter();
-    if (isNaN(counter[player])) counter[player] = 0;
-    counter[player] = Math.max(counter[player] + modifier, 0);
+
+    player.forEach((pl, index)=>{
+        if (isNaN(counter[pl])) counter[pl] = 0;
+        counter[pl] = Math.max(counter[pl] + modifier[index], 0);
+    })
+
     setCounter(counter).then(() => {
-        updateCounter($counterStructure, counter[player]);
+        updateCounter(player, counter);
         game.socket.emit('module.BonusDie', {
             action: 'updatePlayerDisplay',
             targetId: player,
-            counter: counter[player]
+            counter: counter
         })
     });
 }
 
-const modifyBonusDieAmountPlayer = (player: string, modifier: number) => {
-    game.socket.emit('module.BonusDie', {action: 'requestCounterUpdate', requestSource: player, modifier: modifier})
+const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[]) => {
+    await game.socket.emit('module.BonusDie', {
+        action: 'requestCounterUpdate',
+        requestSource: player,
+        modifier: modifier
+    })
 }
 
 /**
@@ -40,24 +54,26 @@ const modifyBonusDieAmountPlayer = (player: string, modifier: number) => {
  * @param player - owner of the structure
  * @param $counterStructure - jQuery obj of the span
  */
-const methodSelector = (type: string, player: string, $counterStructure) => () => {
+const methodSelector = (type: string, player: string, $counterStructure) => async () => {
     switch (type) {
         case 'increase':
-            return modifyBonusDieAmountGM(player, 1, $counterStructure);
+            return modifyBonusDieAmountGM([player], [1], $counterStructure);
         case 'decrease':
-            return modifyBonusDieAmountGM(player, -1, $counterStructure);
+            return modifyBonusDieAmountGM([player], [-1], $counterStructure);
         case 'use':
 
-            return modifyBonusDieAmountPlayer(player, -1);
+            return await modifyBonusDieAmountPlayer([player], [-1]);
         case 'gift':
             // @ts-ignore
-            modifyBonusDieAmountGM(game.user.data._id, -1, $counterStructure)
-            return modifyBonusDieAmountGM(player, 1, $counterStructure);
+            //modifyBonusDieAmountPlayer(game.user.data._id, -1).then(() => modifyBonusDieAmountPlayer(player, 1))
+            // @ts-ignore
+            await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1]);
+            break;
     }
-    ;
+
 }
 
-const iconSelector = (type: string): string => type === 'increase' ? 'fas fa-plus' : type === 'decrease' ? 'fas fa-minus' : type === 'use' ? 'fas fa-dice-d20' : 'fas fa-gift';
+const iconSelector = (type: string): string => `fas ${type === 'increase' ? 'fa-plus' : type === 'decrease' ? 'fa-minus' : type === 'use' ? 'fa-dice-d20' : 'fa-gift'}`;
 
 /**
  * Creates the structure for the button

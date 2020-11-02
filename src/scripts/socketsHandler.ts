@@ -1,11 +1,12 @@
 import {updateCounter, modifyBonusDieAmountGM} from "./BonusDice";
 
-const socketsHandle = () => (receivedObject) => {
+const socketsHandle = () => async (receivedObject) => {
     switch (receivedObject.action) {
         case 'updatePlayerDisplay':
-            return updateCounter($(`#BonusDie-${receivedObject.targetId}`), receivedObject.counter);
+            return updateCounter(Array.isArray(receivedObject.targetId) ? receivedObject.targetId : [receivedObject.targetId], receivedObject.counter);
         case 'requestCounterUpdate':
-            return modifyBonusDieAmountGM (receivedObject.requestSource, receivedObject.modifier, $(`#BonusDie-${receivedObject.requestSource}`));
+            await modifyBonusDieAmountGM(receivedObject.requestSource, receivedObject.modifier, $(`#BonusDie-${receivedObject.requestSource}`));
+            break;
     }
 }
 
