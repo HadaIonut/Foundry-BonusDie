@@ -1,4 +1,4 @@
-import {getCounter, setCounter} from "./Settings"
+import {getCounter, getSetting, setCounter} from "./Settings"
 import {createNewMessage} from "./MessageHandle";
 
 /**
@@ -25,8 +25,9 @@ const updateCounter = (counter, newValue) => counter.forEach((entity) => getJQue
  */
 const shouldIModify = (counter: any, players: string[], modifiers: number[]): boolean => {
     let returnValue = true;
-    players.forEach((current, index)=> {
+    players.forEach((current, index) => {
         if (counter[current] === 0 && modifiers[index] === -1) returnValue = false;
+        if (counter[current] === getSetting('maxNrOfBonusDice') && modifiers[index] === 1) returnValue = false;
     })
     return returnValue;
 }
