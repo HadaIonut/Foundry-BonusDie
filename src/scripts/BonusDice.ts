@@ -1,5 +1,10 @@
 import {getCounter, setCounter} from "./Settings"
 
+/**
+ * Returns the id of the span that holds a player's bonus die number
+ *
+ * @param id - player id
+ */
 const getJQueryObjectFromId = (id: string) => $(`#BonusDie-${id}`);
 
 /**
@@ -17,28 +22,36 @@ const updateCounter = (counter, newValue) => {
 /**
  * Method called by the buttons to update the numbers displayed
  *
- * @param player - owner of the bonus die
- * @param modifier - how should the number of bonus die be modified (+/-)
- * @param $counterStructure - jQuery obj of the span
+ * @param players - owner of the bonus die
+ * @param modifiers - how should the number of bonus die be modified (+/-)
  */
-const modifyBonusDieAmountGM = (player, modifier, $counterStructure?) => {
+const modifyBonusDieAmountGM = (players, modifiers) => {
     const counter = getCounter();
 
-    player.forEach((pl, index)=>{
+    // modifies each object of the counter based on the modifiers array
+    players.forEach((pl, index)=>{
         if (isNaN(counter[pl])) counter[pl] = 0;
-        counter[pl] = Math.max(counter[pl] + modifier[index], 0);
+        counter[pl] = Math.max(counter[pl] + modifiers[index], 0);
     })
 
+    // updates the counter and emits an update message for all players
     setCounter(counter).then(() => {
-        updateCounter(player, counter);
+        updateCounter(players, counter);
         game.socket.emit('module.BonusDie', {
             action: 'updatePlayerDisplay',
-            targetId: player,
+            targetId: players,
             counter: counter
         })
     });
 }
 
+/**
+ * Method intended for calling modify Die Amount from the player's side,
+ * it emits a socket that will be answered by the GM side of the method
+ *
+ * @param player - player calling the method
+ * @param modifier - +1/-1
+ */
 const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[]) => {
     await game.socket.emit('module.BonusDie', {
         action: 'requestCounterUpdate',
@@ -52,20 +65,17 @@ const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[]) 
  *
  * @param type - increase/decrease
  * @param player - owner of the structure
- * @param $counterStructure - jQuery obj of the span
  */
-const methodSelector = (type: string, player: string, $counterStructure) => async () => {
+const methodSelector = (type: string, player: string) => async () => {
     switch (type) {
         case 'increase':
-            return modifyBonusDieAmountGM([player], [1], $counterStructure);
+            return modifyBonusDieAmountGM([player], [1]);
         case 'decrease':
-            return modifyBonusDieAmountGM([player], [-1], $counterStructure);
+            return modifyBonusDieAmountGM([player], [-1]);
         case 'use':
-
+            //TODO: insert some emitter here in case you decide to do the Hooks
             return await modifyBonusDieAmountPlayer([player], [-1]);
         case 'gift':
-            // @ts-ignore
-            //modifyBonusDieAmountPlayer(game.user.data._id, -1).then(() => modifyBonusDieAmountPlayer(player, 1))
             // @ts-ignore
             await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1]);
             break;
@@ -79,12 +89,11 @@ const iconSelector = (type: string): string => `fas ${type === 'increase' ? 'fa-
  * Creates the structure for the button
  *
  * @param player - owner of the data
- * @param $counterStructure - jQuery obj of the span
  */
-const button = (player: string, $counterStructure) => (type: string) => {
+const button = (player: string) => (type: string) => {
     const iconType = iconSelector(type);
     let createdButton = $(`<span style='flex: 0.2'><i class='${iconType}'></i></span>`);
-    createdButton.on('click', methodSelector(type, player, $counterStructure));
+    createdButton.on('click', methodSelector(type, player));
     return createdButton;
 }
 
@@ -111,9 +120,8 @@ const getSpanId = (index) => `BonusDie-${index}`;
  * Creates the structure for the bonus die display as a span with the number of bonus die
  *
  * @param player - the player owner of the structure
- * @param index - index of the span
  */
-const bonusDieStructure = (player: string, index) => $(`<span id="${getSpanId(player)}" style='flex: 0.1'>${getBonusDieValue(player)}</i></span>`);
+const bonusDieStructure = (player: string) => $(`<span id="${getSpanId(player)}" style='flex: 0.1'>${getBonusDieValue(player)}</i></span>`);
 
 /**
  * Creates the controls structure for the DM (display, plus button, minus button)
@@ -123,8 +131,8 @@ const bonusDieStructure = (player: string, index) => $(`<span id="${getSpanId(pl
  */
 const getControls = (players, index) => {
     const playerId = players.users[index].data._id;
-    const $bonusDie = bonusDieStructure(playerId, index);
-    const buttonWithPlayer = button(playerId, $bonusDie);
+    const $bonusDie = bonusDieStructure(playerId);
+    const buttonWithPlayer = button(playerId);
 
     if (game.user.isGM) {
         const buttonPlus = buttonWithPlayer('increase');
@@ -138,7 +146,7 @@ const getControls = (players, index) => {
         // @ts-ignore
         const buttonGift = game.user.data._id !== playerId ? buttonWithPlayer('gift') : '';
 
-        return [$bonusDie, buttonUse, buttonGift] // remove when testing done
+        return [$bonusDie, buttonUse, buttonGift] //TODO remove when testing done
 
         if (players.users[index].isGM) return [''];
         else return [$bonusDie, buttonUse, buttonGift];
