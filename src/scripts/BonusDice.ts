@@ -48,9 +48,22 @@ const modifyBonusDieAmount = (player: string, modifier: number, $counterStructur
  * @param player - owner of the structure
  * @param $counterStructure - jQuery obj of the span
  */
-const methodSelector = (type: string, player: string, $counterStructure) => () => modifyBonusDieAmount(player, type === "increase" ? 1 : -1, $counterStructure);
+const methodSelector = (type: string, player: string, $counterStructure) => () => {
+    switch (type) {
+        case 'increase':
+            return modifyBonusDieAmount(player, 1, $counterStructure);
+        case 'decrease':
+            return modifyBonusDieAmount(player, -1, $counterStructure);
+        case 'use':
 
-const iconSelector = (type: string): string => type === 'increase' ? 'fas fa-plus' : 'fas fa-minus';
+            break;
+        case 'gift':
+            break;
+    }
+    ;
+}
+
+const iconSelector = (type: string): string => type === 'increase' ? 'fas fa-plus' : type === 'decrease' ? 'fas fa-minus' : type === 'use' ? 'fas fa-dice-d20' : 'fas fa-gift';
 
 /**
  * Creates the structure for the button
@@ -82,7 +95,7 @@ const getBonusDieValue = (player: string): number => {
  *
  * @param index - index of the span
  */
-const getSpanId = (index)=> `BonusDie-${index}`;
+const getSpanId = (index) => `BonusDie-${index}`;
 
 /**
  * Creates the structure for the bonus die display as a span with the number of bonus die
@@ -99,16 +112,24 @@ const bonusDieStructure = (player: string, index) => $(`<span id="${getSpanId(in
  * @param index - index of the span
  */
 const getControls = (players, index) => {
-    const $bonusDie = bonusDieStructure(players.users[index].data._id, index);
+    const playerId = players.users[index].data._id;
+    const $bonusDie = bonusDieStructure(playerId, index);
+    const buttonWithPlayer = button(playerId, $bonusDie);
 
     if (game.user.isGM) {
-        const buttonWithPlayer = button(players.users[index].data._id, $bonusDie);
-        const buttonPlus = buttonWithPlayer("increase");
-        const buttonMinus = buttonWithPlayer("decrease");
+        const buttonPlus = buttonWithPlayer('increase');
+        const buttonMinus = buttonWithPlayer('decrease');
 
-        return [$bonusDie, buttonPlus, buttonMinus];
+        if (players.users[index].isGM) return [''];
+        else return [$bonusDie, buttonPlus, buttonMinus];
     } else {
-        return [$bonusDie];
+        // @ts-ignore
+        const buttonUse = game.user.data._id === playerId ? buttonWithPlayer('use') : '';
+        // @ts-ignore
+        const buttonGift = game.user.data._id !== playerId ? buttonWithPlayer('gift') : '';
+
+        if (players.users[index].isGM) return [''];
+        else return [$bonusDie, buttonUse, buttonGift];
     }
 }
 
