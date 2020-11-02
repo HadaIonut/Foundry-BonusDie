@@ -13,12 +13,9 @@ const getJQueryObjectFromId = (id: string) => $(`#BonusDie-${id}`);
  * @param counter - jQuery element of the span to update
  * @param newValue - the new value of the span
  */
-const updateCounter = (counter, newValue) => {
-    counter.forEach((entity) => {
-        getJQueryObjectFromId(entity).text(newValue[entity]);
-    })
-}
+const updateCounter = (counter, newValue) => counter.forEach((entity) => getJQueryObjectFromId(entity).text(newValue[entity]))
 
+//Ignore the stupidly long one-liner
 // @ts-ignore
 const shouldIModify = (counter: any, players: string[], modifiers: number[]) => players.reduce((previous, current, index) => !(counter[current] === 0 && modifiers[index] === -1));
 
@@ -150,8 +147,6 @@ const getControls = (players, index) => {
         const buttonUse = game.user.data._id === playerId ? buttonWithPlayer('use') : '';
         // @ts-ignore
         const buttonGift = game.user.data._id !== playerId ? buttonWithPlayer('gift') : '';
-
-        return [$bonusDie, buttonUse, buttonGift] //TODO remove when testing done
 
         if (players.users[index].isGM) return [''];
         else return [$bonusDie, buttonUse, buttonGift];
