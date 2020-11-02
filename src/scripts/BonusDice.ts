@@ -1,20 +1,4 @@
-import {registerCounter, getCounter, setCounter} from "./Settings"
-
-Hooks.on("init", async () => {
-    await registerCounter();
-
-    console.log("ceputa");
-    CONFIG.debug.hooks = true;
-
-})
-
-Hooks.on("ready", () => {
-    //event trigger for updating the data un the user side
-    game.socket.on('module.BonusDie', (object) => {
-        console.log('ceaoa');
-        updateCounter($(`#${object.str}`), object.counter);
-    });
-})
+import {getCounter, setCounter} from "./Settings"
 
 /**
  * Updates the counter display
@@ -56,9 +40,11 @@ const methodSelector = (type: string, player: string, $counterStructure) => () =
             return modifyBonusDieAmount(player, -1, $counterStructure);
         case 'use':
 
-            break;
+            return modifyBonusDieAmount(player, -1, $counterStructure);
         case 'gift':
-            break;
+            // @ts-ignore
+            modifyBonusDieAmount(game.user.data._id, -1, $counterStructure)
+            return modifyBonusDieAmount(player, 1, $counterStructure);
     }
     ;
 }
@@ -128,6 +114,8 @@ const getControls = (players, index) => {
         // @ts-ignore
         const buttonGift = game.user.data._id !== playerId ? buttonWithPlayer('gift') : '';
 
+        return [$bonusDie, buttonUse, buttonGift] // remove when testing done
+
         if (players.users[index].isGM) return [''];
         else return [$bonusDie, buttonUse, buttonGift];
     }
@@ -140,8 +128,5 @@ const getControls = (players, index) => {
  */
 const handle = (players) => (index, playerHTML) => $(playerHTML).append(...getControls(players, index));
 
+export {handle}
 
-/* Magic one liner, I dont want to talk about this
-   bmarian made me do it, make issues on token tooltip alt
-   https://github.com/bmarian/token-tooltip-alt/issues */
-Hooks.on("renderPlayerList", (playerList, $playerList, players) => $playerList.find('ol').children().each(handle(players)));

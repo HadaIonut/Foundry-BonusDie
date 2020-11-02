@@ -4,7 +4,7 @@
   "description": "",
   "authors": ["HadaIoan"],
   "version": "0.0.1",
-  "esmodules": ["scripts/BonusDice.js"],
+  "esmodules": ["scripts/Hooks.js"],
   "socket":true,
   "styles": [],
   "minimumCoreVersion": "0.7.0",
