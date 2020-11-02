@@ -15,14 +15,22 @@ const updateCounter = ($counter, newValue: number) => $counter.text(newValue);
  * @param modifier - how should the number of bonus die be modified (+/-)
  * @param $counterStructure - jQuery obj of the span
  */
-const modifyBonusDieAmount = (player: string, modifier: number, $counterStructure) => {
+const modifyBonusDieAmountGM = (player: string, modifier: number, $counterStructure?) => {
     const counter = getCounter();
     if (isNaN(counter[player])) counter[player] = 0;
     counter[player] = Math.max(counter[player] + modifier, 0);
     setCounter(counter).then(() => {
         updateCounter($counterStructure, counter[player]);
-        game.socket.emit('module.BonusDie', {str: $counterStructure.attr('id'), counter: counter[player]})
+        game.socket.emit('module.BonusDie', {
+            action: 'updatePlayerDisplay',
+            targetId: player,
+            counter: counter[player]
+        })
     });
+}
+
+const modifyBonusDieAmountPlayer = (player: string, modifier: number) => {
+    game.socket.emit('module.BonusDie', {action: 'requestCounterUpdate', requestSource: player, modifier: modifier})
 }
 
 /**
@@ -35,16 +43,16 @@ const modifyBonusDieAmount = (player: string, modifier: number, $counterStructur
 const methodSelector = (type: string, player: string, $counterStructure) => () => {
     switch (type) {
         case 'increase':
-            return modifyBonusDieAmount(player, 1, $counterStructure);
+            return modifyBonusDieAmountGM(player, 1, $counterStructure);
         case 'decrease':
-            return modifyBonusDieAmount(player, -1, $counterStructure);
+            return modifyBonusDieAmountGM(player, -1, $counterStructure);
         case 'use':
 
-            return modifyBonusDieAmount(player, -1, $counterStructure);
+            return modifyBonusDieAmountPlayer(player, -1);
         case 'gift':
             // @ts-ignore
-            modifyBonusDieAmount(game.user.data._id, -1, $counterStructure)
-            return modifyBonusDieAmount(player, 1, $counterStructure);
+            modifyBonusDieAmountGM(game.user.data._id, -1, $counterStructure)
+            return modifyBonusDieAmountGM(player, 1, $counterStructure);
     }
     ;
 }
@@ -89,7 +97,7 @@ const getSpanId = (index) => `BonusDie-${index}`;
  * @param player - the player owner of the structure
  * @param index - index of the span
  */
-const bonusDieStructure = (player: string, index) => $(`<span id="${getSpanId(index)}" style='flex: 0.1'>${getBonusDieValue(player)}</i></span>`);
+const bonusDieStructure = (player: string, index) => $(`<span id="${getSpanId(player)}" style='flex: 0.1'>${getBonusDieValue(player)}</i></span>`);
 
 /**
  * Creates the controls structure for the DM (display, plus button, minus button)
@@ -128,5 +136,5 @@ const getControls = (players, index) => {
  */
 const handle = (players) => (index, playerHTML) => $(playerHTML).append(...getControls(players, index));
 
-export {handle}
+export {handle, updateCounter, modifyBonusDieAmountGM}
 
