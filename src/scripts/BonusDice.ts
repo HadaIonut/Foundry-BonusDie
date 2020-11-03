@@ -25,9 +25,10 @@ const updateCounter = (counter, newValue) => counter.forEach((entity) => getJQue
  */
 const shouldIModify = (counter: any, players: string[], modifiers: number[]): boolean => {
     let returnValue = true;
+    const maxNrDice = getSetting('maxNrOfBonusDice');
     players.forEach((current, index) => {
         if (counter[current] === 0 && modifiers[index] === -1) returnValue = false;
-        if (counter[current] === getSetting('maxNrOfBonusDice') && modifiers[index] === 1) returnValue = false;
+        if (maxNrDice !== 0 && (counter[current] === maxNrDice && modifiers[index] === 1)) returnValue = false;
     })
     return returnValue;
 }
@@ -94,7 +95,7 @@ const methodSelector = (type: string, player: string) => async () => {
             return await modifyBonusDieAmountPlayer([player], [-1]);
         case 'gift':
             // @ts-ignore
-            if (shouldIModify(getCounter(), [player, game.user.data._id], [1, -1])) await createNewMessage('gift', player, game.user.data._id);
+            if (shouldIModify(getCounter(), [player, game.user.data._id], [1, -1])) await createNewMessage('gift', game.user.data._id, player);
             // @ts-ignore
             await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1]);
             break;
