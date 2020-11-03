@@ -95,7 +95,9 @@ const methodSelector = (type: string, player: string) => async () => {
             return await modifyBonusDieAmountPlayer([player], [-1]);
         case 'gift':
             // @ts-ignore
-            if (shouldIModify(getCounter(), [player, game.user.data._id], [1, -1])) await createNewMessage('gift', game.user.data._id, player);
+            if (shouldIModify(getCounter(), [player, game.user.data._id], [1, -1]))
+                // @ts-ignore
+                await createNewMessage('gift', game.user.data._id, player);
             // @ts-ignore
             await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1]);
             break;
@@ -111,7 +113,7 @@ const iconSelector = (type: string): string => `fas ${type === 'increase' ? 'fa-
  */
 const button = (player: string) => (type: string) => {
     const iconType = iconSelector(type);
-    let createdButton = $(`<span style='flex: 0.2'><i class='${iconType}'></i></span>`);
+    let createdButton = $(`<span><i class='${iconType}'></i></span>`);
     createdButton.on('click', methodSelector(type, player));
     return createdButton;
 }
@@ -140,7 +142,7 @@ const getSpanId = (index) => `BonusDie-${index}`;
  *
  * @param player - the player owner of the structure
  */
-const bonusDieStructure = (player: string) => $(`<span id="${getSpanId(player)}" style='flex: 0.2'>${getBonusDieValue(player)}</i></span>`);
+const bonusDieStructure = (player: string) => $(`<span id="${getSpanId(player)}">${getBonusDieValue(player)}</i></span>`);
 
 /**
  * Creates the controls structure for the DM (display, plus button, minus button)
@@ -175,7 +177,11 @@ const getControls = (players, index) => {
  *
  * @param players - a list of players
  */
-const handle = (players) => (index, playerHTML) => $(playerHTML).append(...getControls(players, index));
+const handle = (players) => (index, playerHTML) => {
+    const $container = $('<div class="BonusDie-button-container"></div>')
+    $container.append(...getControls(players, index));
+    return $(playerHTML).append($container);
+}
 
 export {handle, updateCounter, modifyBonusDieAmountGM}
 
