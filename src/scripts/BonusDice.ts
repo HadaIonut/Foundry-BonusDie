@@ -1,7 +1,13 @@
 import {getCounter, getSetting, setCounter} from "./Settings"
 import {createNewMessage} from "./MessageHandle";
 
-const createWarning = (checkSource: string, type:string) => {
+/**
+ * Creates a warning to a target player
+ *
+ * @param checkSource - the target of the warning
+ * @param type - details of the warning
+ */
+const createWarning = (checkSource: string, type: string) => {
     // @ts-ignore
     if (checkSource === game.user.data._id) ui.notifications.warn(getSetting(type));
 }
@@ -28,7 +34,7 @@ const updateCounter = (counter, newValue) => counter.forEach((entity) => getJQue
  * @param players - a list of players involved in the modification
  * @param modifiers - the modifiers applied to the counter
  */
-const shouldIModify = (counter: any, players: string[], modifiers: number[]) => {
+const createShouldModifyObject = (counter: any, players: string[], modifiers: number[]) => {
     let returnValue = true;
     let reason = 'nothing';
     const maxNrDice = getSetting('maxNrOfBonusDice');
@@ -49,38 +55,45 @@ const shouldIModify = (counter: any, players: string[], modifiers: number[]) => 
 }
 
 /**
- * Method called by the buttons to update the numbers displayed
+ * Creates warning to the owner of the modifications
  *
- * @param players - owner of the bonus die
- * @param modifiers - how should the number of bonus die be modified (+/-)
- * @param context
- * @param source
+ * @param source - owner of the modifications
+ * @param modify - shouldModify object
  */
-const modifyBonusDieAmountGM = async (players: string[], modifiers: number[], context: string, source?) => {
-    if (!game.user.isGM) return;
+const warnings = (source, modify) => {
+    if (!source) return ui.notifications.warn(getSetting(modify.reason));
+    game.socket.emit('module.BonusDie', {
+        action: 'warningFallBack',
+        source: source,
+        reason: modify.reason
+    })
+}
 
-    const counter = getCounter();
+const createMessageOnModification = async (context, players) =>
+    context === 'gift' ? await createNewMessage(context, players[1], players[0]) : await createNewMessage(context, players[0])
 
-    const modify = shouldIModify(counter, players, modifiers);
-    if (!modify.state) {
-        if (!source) return ui.notifications.warn(getSetting(modify.reason));
-        game.socket.emit('module.BonusDie', {
-            action: 'warningFallBack',
-            source: source,
-            reason: modify.reason
-        })
-        return ;
-    }
-
-    context === 'gift' ? await createNewMessage(context, players[1], players[0]) :  await createNewMessage(context, players[0])
-
-    // modifies each object of the counter based on the modifiers array
+/**
+ * Modifies the structure of the counter
+ *
+ * @param players - list of players involved in the modification
+ * @param counter - the entire counter
+ * @param modifiers - the modifications done by each player
+ */
+const modifyCounter = (players, counter, modifiers) => {
     players.forEach((pl, index) => {
         if (isNaN(counter[pl])) counter[pl] = 0;
         counter[pl] = Math.max(counter[pl] + modifiers[index], 0);
     })
+    return counter;
+}
 
-    // updates the counter and emits an update message for all players
+/**
+ * Update the counter in the settings and emits the message for the players to update their counters
+ *
+ * @param counter - all saved data
+ * @param players - a list of players whose numbers should be modified
+ */
+const updateCounterAndDisplay = (counter, players) => {
     setCounter(counter).then(() => {
         updateCounter(players, counter);
         game.socket.emit('module.BonusDie', {
@@ -92,6 +105,28 @@ const modifyBonusDieAmountGM = async (players: string[], modifiers: number[], co
 }
 
 /**
+ * Method called by the buttons to update the numbers displayed
+ *
+ * @param players - owner of the bonus die
+ * @param modifiers - how should the number of bonus die be modified (+/-)
+ * @param context - what message should be created
+ * @param source - who called the modification
+ */
+const modifyBonusDieAmountGM = async (players: string[], modifiers: number[], context: string, source?) => {
+    if (!game.user.isGM) return;
+
+    let counter = getCounter();
+
+    const modify = createShouldModifyObject(counter, players, modifiers);
+    if (!modify.state) return warnings(source, modify);
+
+    await createMessageOnModification(context, players);
+    counter = modifyCounter(players, counter, modifiers);
+
+    updateCounterAndDisplay(counter, players);
+}
+
+/**
  * Method intended for calling modify Die Amount from the player's side,
  * it emits a socket that will be answered by the GM side of the method
  *
@@ -100,7 +135,7 @@ const modifyBonusDieAmountGM = async (players: string[], modifiers: number[], co
  * @param context
  * @param source
  */
-const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[], context:string, source:string) => {
+const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[], context: string, source: string) => {
     await game.socket.emit('module.BonusDie', {
         action: 'requestCounterUpdate',
         players: player,
