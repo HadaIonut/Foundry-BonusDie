@@ -1,4 +1,6 @@
 # Bonus Die
+![downloads](https://img.shields.io/github/downloads/HadaIonut/Foundry-BonusDie/v1.0.0/bonusDie.zip?style=for-the-badge)
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A32J9GM)
 
 Bonus Die is a Foundry VTT module that allows the GM to give players 'Bonus Dice' that can be expended at will or traded by the players.
 Expending a bonus die will trigger a chat message. This messages are costumizable and feature keywords that will be automaticly replaced.
