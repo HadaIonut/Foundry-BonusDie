@@ -1,6 +1,11 @@
 import {getCounter, getSetting, setCounter} from "./Settings"
 import {createNewMessage} from "./MessageHandle";
 
+const createWarning = (checkSource: string, type:string) => {
+    // @ts-ignore
+    if (checkSource === game.user.data._id) ui.notifications.warn(getSetting(type));
+}
+
 /**
  * Returns the id of the span that holds a player's bonus die number
  *
@@ -17,20 +22,30 @@ const getJQueryObjectFromId = (id: string) => $(`#BonusDie-${id}`);
 const updateCounter = (counter, newValue) => counter.forEach((entity) => getJQueryObjectFromId(entity).text(newValue[entity]))
 
 /**
- * Returns true if a counter should be modified
+ * Returns true if a counter should be modified and false + reason if not
  *
  * @param counter - list of all the bonus dice of all the players
  * @param players - a list of players involved in the modification
  * @param modifiers - the modifiers applied to the counter
  */
-const shouldIModify = (counter: any, players: string[], modifiers: number[]): boolean => {
+const shouldIModify = (counter: any, players: string[], modifiers: number[]) => {
     let returnValue = true;
+    let reason = 'nothing';
     const maxNrDice = getSetting('maxNrOfBonusDice');
     players.forEach((current, index) => {
-        if (counter[current] === 0 && modifiers[index] === -1) returnValue = false;
-        if (maxNrDice !== 0 && (counter[current] === maxNrDice && modifiers[index] === 1)) returnValue = false;
+        if (counter[current] === 0 && modifiers[index] === -1) {
+            returnValue = false;
+            reason = 'onModifyNegative';
+        }
+        if (maxNrDice !== 0 && (counter[current] === maxNrDice && modifiers[index] === 1)) {
+            returnValue = false;
+            reason = 'onOverLimit';
+        }
     })
-    return returnValue;
+    return {
+        state: returnValue,
+        reason: reason
+    };
 }
 
 /**
@@ -38,13 +53,26 @@ const shouldIModify = (counter: any, players: string[], modifiers: number[]): bo
  *
  * @param players - owner of the bonus die
  * @param modifiers - how should the number of bonus die be modified (+/-)
+ * @param context
+ * @param source
  */
-const modifyBonusDieAmountGM = (players: string[], modifiers: number[]) => {
+const modifyBonusDieAmountGM = async (players: string[], modifiers: number[], context: string, source?) => {
     if (!game.user.isGM) return;
 
     const counter = getCounter();
 
-    if (!shouldIModify(counter, players, modifiers)) return;
+    const modify = shouldIModify(counter, players, modifiers);
+    if (!modify.state) {
+        if (!source) return ui.notifications.warn(getSetting(modify.reason));
+        game.socket.emit('module.BonusDie', {
+            action: 'warningFallBack',
+            source: source,
+            reason: modify.reason
+        })
+        return ;
+    }
+
+    context === 'gift' ? await createNewMessage(context, players[1], players[0]) :  await createNewMessage(context, players[0])
 
     // modifies each object of the counter based on the modifiers array
     players.forEach((pl, index) => {
@@ -69,12 +97,16 @@ const modifyBonusDieAmountGM = (players: string[], modifiers: number[]) => {
  *
  * @param player - player calling the method
  * @param modifier - +1/-1
+ * @param context
+ * @param source
  */
-const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[]) => {
+const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[], context:string, source:string) => {
     await game.socket.emit('module.BonusDie', {
         action: 'requestCounterUpdate',
-        requestSource: player,
-        modifier: modifier
+        players: player,
+        modifier: modifier,
+        context: context,
+        source: source
     })
 }
 
@@ -87,20 +119,14 @@ const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[]) 
 const methodSelector = (type: string, player: string) => async () => {
     switch (type) {
         case 'increase':
-            return modifyBonusDieAmountGM([player], [1]);
+            return modifyBonusDieAmountGM([player], [1], 'increase');
         case 'decrease':
-            return modifyBonusDieAmountGM([player], [-1]);
+            return modifyBonusDieAmountGM([player], [-1], 'decrease');
         case 'use':
-            if (shouldIModify(getCounter(), [player], [-1])) await createNewMessage('use', player);
-            return await modifyBonusDieAmountPlayer([player], [-1]);
+            return await modifyBonusDieAmountPlayer([player], [-1], 'use', player);
         case 'gift':
             // @ts-ignore
-            if (shouldIModify(getCounter(), [player, game.user.data._id], [1, -1]))
-                // @ts-ignore
-                await createNewMessage('gift', game.user.data._id, player);
-            // @ts-ignore
-            await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1]);
-            break;
+            return await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1], 'gift', game.user.data._id);
     }
 }
 
@@ -183,5 +209,5 @@ const handle = (players) => (index, playerHTML) => {
     return $(playerHTML).append($container);
 }
 
-export {handle, updateCounter, modifyBonusDieAmountGM}
+export {handle, updateCounter, modifyBonusDieAmountGM, createWarning}
 

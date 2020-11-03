@@ -35,6 +35,40 @@ const SETTINGS = [
         }
     },
     {
+        key: "nameOfAlias",
+        data: {
+            name: "Alias of the sender: ",
+            hint: "This is the name of the sender of the message ",
+            type: String,
+            default: "Bonus Dice",
+            scope: "world",
+            config: true,
+            restricted: true,
+        }
+    },
+    {
+        key: "messageOnIncrease",
+        data: {
+            name: "Message on increase:",
+            type: String,
+            default: "The GM gave [$player] a [$bonusDie].",
+            scope: "world",
+            config: true,
+            restricted: true,
+        }
+    },
+    {
+        key: "messageOnDecrease",
+        data: {
+            name: "Message on decrease:",
+            type: String,
+            default: "The GM removed a [$bonusDie] from [$player].",
+            scope: "world",
+            config: true,
+            restricted: true,
+        }
+    },
+    {
         key: "messageOnUse",
         data: {
             name: "Message on use:",
@@ -51,6 +85,28 @@ const SETTINGS = [
             name: "Message on gift:",
             type: String,
             default: "[$player] has gifted a [$bonusDie] to [$targetPlayer]",
+            scope: "world",
+            config: true,
+            restricted: true,
+        }
+    },
+    {
+        key: "onModifyNegative",
+        data: {
+            name: 'Warning on negative:',
+            type: String,
+            default: "You cannot get to negative Bonus Dice, sorry about that.",
+            scope: "world",
+            config: true,
+            restricted: true,
+        }
+    },
+    {
+        key: "onOverLimit",
+        data: {
+            name: 'Warning on over the limit:',
+            type: String,
+            default: "There is a limit to how many Bonus Dice you can have",
             scope: "world",
             config: true,
             restricted: true,

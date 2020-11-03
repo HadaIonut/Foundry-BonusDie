@@ -1,5 +1,12 @@
 import {getSetting} from "./Settings";
 
+const messageType = {
+    increase: 'messageOnIncrease',
+    decrease: 'messageOnDecrease',
+    use: 'messageOnUse',
+    gift: 'messageOnGift'
+}
+
 const processorMethod = (playerOwner:string, playerTarget?:string) => () => (valueToReplace): string => {
     switch (valueToReplace) {
         case '[$player]':
@@ -18,7 +25,7 @@ const parseRawMessages = (unparsedMessage: string, processorWithPlayerData: Func
 }
 
 const getMessageContent = (context: string, processorWithPlayerData: Function) => {
-    const unparsedMessage = getSetting(context === "use" ? 'messageOnUse' : 'messageOnGift');
+    const unparsedMessage = getSetting(messageType[context]);
     return parseRawMessages(unparsedMessage, processorWithPlayerData);
 }
 
@@ -27,9 +34,11 @@ const createNewMessage = (context: string, playerOwner:any, playerTarget?:any) =
     return ChatMessage.create({
         content: getMessageContent(context, processorWithPlayerData),
         speaker: {
-            alias: 'Bonus Dice'
+            alias: getSetting('nameOfAlias')
         }
     })
 }
+
+
 
 export {createNewMessage};
