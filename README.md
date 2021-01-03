@@ -1,5 +1,6 @@
 # Bonus Die
 ![downloads](https://img.shields.io/github/downloads/HadaIonut/Foundry-BonusDie/v1.0.0/bonusDie.zip?style=for-the-badge)
+![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2FBonusDie&colorB=4aa94a&style=for-the-badge)
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A32J9GM)
 
 Bonus Die is a Foundry VTT module that allows the GM to give players 'Bonus Dice' that can be expended at will or traded by the players.
