@@ -1,0 +1,16 @@
+{
+  "name": "BonusDie",
+  "title": "Bonus Die",
+  "description": "This module offers the option for the GM to give their players a number of 'Bonus Dice' that can be expended or gifted to other players",
+  "author": ["HadaIoan"],
+  "version": "1.0.1",
+  "esmodules": ["scripts/Hooks.js"],
+  "socket":true,
+  "styles": ["styles/BonusDice.css"],
+  "minimumCoreVersion": "0.8.3",
+  "compatibleCoreVersion": "0.8.3",
+  "url": "https://github.com/HadaIonut/Foundry-BonusDie",
+  "manifest": "https://github.com/HadaIonut/Foundry-BonusDie/releases/download/v1.0.1/module.json",
+  "download": "https://github.com/HadaIonut/Foundry-BonusDie/releases/download/v1.0.1/bonusDie.zip",
+  "changelog": ""
+}

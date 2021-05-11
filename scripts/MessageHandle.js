@@ -1,4 +1,4 @@
-import {getSetting} from "./Settings";
+import {getSetting} from "./Settings.js";
 
 const messageType = {
     increase: 'messageOnIncrease',
@@ -7,7 +7,7 @@ const messageType = {
     gift: 'messageOnGift'
 }
 
-const processorMethod = (playerOwner:string, playerTarget?:string) => () => (valueToReplace): string => {
+const processorMethod = (playerOwner, playerTarget) => () => (valueToReplace) => {
     switch (valueToReplace) {
         case '[$player]':
             return game?.users?.get(playerOwner)?.data?.name;
@@ -20,16 +20,16 @@ const processorMethod = (playerOwner:string, playerTarget?:string) => () => (val
     }
 }
 
-const parseRawMessages = (unparsedMessage: string, processorWithPlayerData: Function) => {
+const parseRawMessages = (unparsedMessage, processorWithPlayerData) => {
     return unparsedMessage.replace(/\[\$([A-z]+)\]/g, processorWithPlayerData())
 }
 
-const getMessageContent = (context: string, processorWithPlayerData: Function) => {
+const getMessageContent = (context, processorWithPlayerData) => {
     const unparsedMessage = getSetting(messageType[context]);
     return parseRawMessages(unparsedMessage, processorWithPlayerData);
 }
 
-const createNewMessage = (context: string, playerOwner:any, playerTarget?:any) => {
+const createNewMessage = (context, playerOwner, playerTarget) => {
     const processorWithPlayerData = processorMethod(playerOwner, playerTarget);
     return ChatMessage.create({
         content: getMessageContent(context, processorWithPlayerData),

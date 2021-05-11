@@ -1,5 +1,5 @@
-import {getCounter, getSetting, setCounter} from "./Settings"
-import {createNewMessage} from "./MessageHandle";
+import {getCounter, getSetting, setCounter} from "./Settings.js"
+import {createNewMessage} from "./MessageHandle.js";
 
 /**
  * Creates a warning to a target player
@@ -7,8 +7,7 @@ import {createNewMessage} from "./MessageHandle";
  * @param checkSource - the target of the warning
  * @param type - details of the warning
  */
-const createWarning = (checkSource: string, type: string) => {
-    // @ts-ignore
+const createWarning = (checkSource, type) => {
     if (checkSource === game.user.data._id) ui.notifications.warn(getSetting(type));
 }
 
@@ -17,7 +16,7 @@ const createWarning = (checkSource: string, type: string) => {
  *
  * @param id - player id
  */
-const getJQueryObjectFromId = (id: string) => $(`#BonusDie-${id}`);
+const getJQueryObjectFromId = (id) => $(`#BonusDie-${id}`);
 
 /**
  * Updates the counter display
@@ -34,7 +33,7 @@ const updateCounter = (counter, newValue) => counter.forEach((entity) => getJQue
  * @param players - a list of players involved in the modification
  * @param modifiers - the modifiers applied to the counter
  */
-const createShouldModifyObject = (counter: any, players: string[], modifiers: number[]) => {
+const createShouldModifyObject = (counter, players, modifiers) => {
     let returnValue = true;
     let reason = 'nothing';
     const maxNrDice = getSetting('maxNrOfBonusDice');
@@ -112,7 +111,7 @@ const updateCounterAndDisplay = (counter, players) => {
  * @param context - what message should be created
  * @param source - who called the modification
  */
-const modifyBonusDieAmountGM = async (players: string[], modifiers: number[], context: string, source?) => {
+const modifyBonusDieAmountGM = async (players, modifiers, context, source) => {
     if (!game.user.isGM) return;
 
     let counter = getCounter();
@@ -135,7 +134,7 @@ const modifyBonusDieAmountGM = async (players: string[], modifiers: number[], co
  * @param context
  * @param source
  */
-const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[], context: string, source: string) => {
+const modifyBonusDieAmountPlayer = async (player, modifier, context, source) => {
     await game.socket.emit('module.BonusDie', {
         action: 'requestCounterUpdate',
         players: player,
@@ -151,7 +150,7 @@ const modifyBonusDieAmountPlayer = async (player: string[], modifier: number[], 
  * @param type - increase/decrease
  * @param player - owner of the structure
  */
-const methodSelector = (type: string, player: string) => async () => {
+const methodSelector = (type, player) => async () => {
     switch (type) {
         case 'increase':
             return modifyBonusDieAmountGM([player], [1], 'increase');
@@ -160,19 +159,18 @@ const methodSelector = (type: string, player: string) => async () => {
         case 'use':
             return await modifyBonusDieAmountPlayer([player], [-1], 'use', player);
         case 'gift':
-            // @ts-ignore
             return await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1], 'gift', game.user.data._id);
     }
 }
 
-const iconSelector = (type: string): string => `fas ${type === 'increase' ? 'fa-plus' : type === 'decrease' ? 'fa-minus' : type === 'use' ? 'fa-dice-d20' : 'fa-gift'}`;
+const iconSelector = (type) => `fas ${type === 'increase' ? 'fa-plus' : type === 'decrease' ? 'fa-minus' : type === 'use' ? 'fa-dice-d20' : 'fa-gift'}`;
 
 /**
  * Creates the structure for the button
  *
  * @param player - owner of the data
  */
-const button = (player: string) => (type: string) => {
+const button = (player) => (type) => {
     const iconType = iconSelector(type);
     let createdButton = $(`<span><i class='${iconType}'></i></span>`);
     createdButton.on('click', methodSelector(type, player));
@@ -184,7 +182,7 @@ const button = (player: string) => (type: string) => {
  *
  * @param player
  */
-const getBonusDieValue = (player: string): number => {
+const getBonusDieValue = (player) => {
     const counter = getCounter();
     if (counter?.[player]) {
         return counter[player];
@@ -203,7 +201,7 @@ const getSpanId = (index) => `BonusDie-${index}`;
  *
  * @param player - the player owner of the structure
  */
-const bonusDieStructure = (player: string) => $(`<span id="${getSpanId(player)}">${getBonusDieValue(player)}</i></span>`);
+const bonusDieStructure = (player) => $(`<span id="${getSpanId(player)}">${getBonusDieValue(player)}</i></span>`);
 
 /**
  * Creates the controls structure for the DM (display, plus button, minus button)
@@ -223,9 +221,7 @@ const getControls = (players, index) => {
         if (players.users[index].isGM) return [''];
         else return [$bonusDie, buttonPlus, buttonMinus];
     } else {
-        // @ts-ignore
         const buttonUse = game.user.data._id === playerId ? buttonWithPlayer('use') : '';
-        // @ts-ignore
         const buttonGift = game.user.data._id !== playerId ? buttonWithPlayer('gift') : '';
 
         if (players.users[index].isGM) return [''];

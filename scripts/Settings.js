@@ -114,15 +114,15 @@ const SETTINGS = [
     }
 ]
 
-const registerSetting = (setting: any): void => game?.settings?.register(moduleName, setting.key, setting.data);
+const registerSetting = (setting) => game?.settings?.register(moduleName, setting.key, setting.data);
 
-const registerSettings = (): void => SETTINGS.forEach(registerSetting);
+const registerSettings = () => SETTINGS.forEach(registerSetting);
 
-const getCounter = (): any => game?.settings?.get(moduleName, "counter");
+const getCounter = () => game?.settings?.get(moduleName, "counter");
 
 const setCounter = async (counterData) => await game?.settings?.set(moduleName, "counter", counterData);
 
-const getSetting = (settingKey): any => game?.settings?.get(moduleName, settingKey);
+const getSetting = (settingKey) => game?.settings?.get(moduleName, settingKey);
 
 const setSetting = async (dataToSave, dataKey) => await game?.settings?.set(moduleName, dataKey, dataToSave);
 

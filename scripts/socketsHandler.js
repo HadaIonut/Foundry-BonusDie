@@ -1,4 +1,4 @@
-import {updateCounter, modifyBonusDieAmountGM, createWarning} from "./BonusDice";
+import {updateCounter, modifyBonusDieAmountGM, createWarning} from "./BonusDice.js";
 
 const socketsHandle = () => async (receivedObject) => {
     switch (receivedObject.action) {
@@ -7,7 +7,6 @@ const socketsHandle = () => async (receivedObject) => {
         case 'requestCounterUpdate':
             return modifyBonusDieAmountGM(receivedObject.players, receivedObject.modifier, receivedObject.context, receivedObject.source);
         case 'warningFallBack':
-            // @ts-ignore
             return createWarning(receivedObject.source, receivedObject.reason);
     }
 }

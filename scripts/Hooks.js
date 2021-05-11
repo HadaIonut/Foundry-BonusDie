@@ -1,6 +1,6 @@
-import {registerSettings} from "./Settings";
-import {handle} from "./BonusDice";
-import {socketsHandle} from "./socketsHandler";
+import {registerSettings} from "./Settings.js";
+import {handle} from "./BonusDice.js";
+import {socketsHandle} from "./socketsHandler.js";
 
 Hooks.on("init", async () => await registerSettings());
 
