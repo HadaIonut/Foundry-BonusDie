@@ -10,7 +10,7 @@
   "minimumCoreVersion": "10",
   "compatibleCoreVersion": "10",
   "url": "https://github.com/HadaIonut/Foundry-BonusDie",
-  "manifest": "https://github.com/HadaIonut/Foundry-BonusDie/releases/download/v1.0.1/module.json",
-  "download": "https://github.com/HadaIonut/Foundry-BonusDie/releases/download/v1.0.1/bonusDie.zip",
+  "manifest": "https://github.com/HadaIonut/Foundry-BonusDie/releases/download/v1.0.2/module.json",
+  "download": "https://github.com/HadaIonut/Foundry-BonusDie/releases/download/v1.0.2/bonusDie.zip",
   "changelog": ""
 }
