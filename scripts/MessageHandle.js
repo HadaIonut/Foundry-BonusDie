@@ -10,11 +10,11 @@ const messageType = {
 const processorMethod = (playerOwner, playerTarget) => () => (valueToReplace) => {
     switch (valueToReplace) {
         case '[$player]':
-            return game?.users?.get(playerOwner)?.data?.name;
+            return game?.users?.get(playerOwner)?.name;
         case '[$bonusDie]':
             return getSetting('nameOfBonusDie');
         case '[$targetPlayer]':
-            return game?.users?.get(playerTarget)?.data?.name;
+            return game?.users?.get(playerTarget)?.name;
         default:
             return `'${valueToReplace}' is not on the list of supported tags`;
     }

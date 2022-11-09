@@ -8,7 +8,7 @@ import {createNewMessage} from "./MessageHandle.js";
  * @param type - details of the warning
  */
 const createWarning = (checkSource, type) => {
-    if (checkSource === game.user.data._id) ui.notifications.warn(getSetting(type));
+    if (checkSource === game.user._id) ui.notifications.warn(getSetting(type));
 }
 
 /**
@@ -159,7 +159,7 @@ const methodSelector = (type, player) => async () => {
         case 'use':
             return await modifyBonusDieAmountPlayer([player], [-1], 'use', player);
         case 'gift':
-            return await modifyBonusDieAmountPlayer([player, game.user.data._id], [1, -1], 'gift', game.user.data._id);
+            return await modifyBonusDieAmountPlayer([player, game.user._id], [1, -1], 'gift', game.user._id);
     }
 }
 
@@ -210,7 +210,7 @@ const bonusDieStructure = (player) => $(`<span id="${getSpanId(player)}">${getBo
  * @param index - index of the span
  */
 const getControls = (players, index) => {
-    const playerId = players.users[index].data._id;
+    const playerId = players.users[index]._id;
     const $bonusDie = bonusDieStructure(playerId);
     const buttonWithPlayer = button(playerId);
 
@@ -221,8 +221,8 @@ const getControls = (players, index) => {
         if (players.users[index].isGM) return [''];
         else return [$bonusDie, buttonPlus, buttonMinus];
     } else {
-        const buttonUse = game.user.data._id === playerId ? buttonWithPlayer('use') : '';
-        const buttonGift = game.user.data._id !== playerId ? buttonWithPlayer('gift') : '';
+        const buttonUse = game.user._id === playerId ? buttonWithPlayer('use') : '';
+        const buttonGift = game.user._id !== playerId ? buttonWithPlayer('gift') : '';
 
         if (players.users[index].isGM) return [''];
         else return [$bonusDie, buttonUse, buttonGift];
