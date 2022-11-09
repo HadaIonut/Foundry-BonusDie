@@ -3,7 +3,7 @@
   "title": "Bonus Die",
   "description": "This module offers the option for the GM to give their players a number of 'Bonus Dice' that can be expended or gifted to other players",
   "author": ["HadaIoan"],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "esmodules": ["scripts/Hooks.js"],
   "socket":true,
   "styles": ["styles/BonusDice.css"],
